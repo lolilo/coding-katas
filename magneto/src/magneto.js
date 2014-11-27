@@ -1,5 +1,5 @@
 
-var magnetoEffect = { 
+var magnetoEffect = {
 	snap: function(magneticPoint, mousePoint, radius) {
 
 		var point = mousePoint;

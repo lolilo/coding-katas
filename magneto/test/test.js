@@ -35,6 +35,18 @@ suite('magnetoEffect', function() {
 
   });
 
+  test('find the closest magnetic point', function(){
+  	var magneticPoint1 = new Point(50, 50);
+  	var magneticPoint2 = new Point(100, 50);
+  	var magneticPointList = [magneticPoint1, magneticPoint2];
+  	var mousePoint = new Point(101, 48);
+  	var expectedPoint = new Point(100, 50);
+  	var effectRadius = 5;
+
+  	assert.deepEqual(expectedPoint, magnetoEffect.getStartVectorPoint(magneticPointList, mousePoint, effectRadius));
+
+  });  
+
 });
 
 suite('Point Class', function () {

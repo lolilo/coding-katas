@@ -2,9 +2,12 @@
 var magnetoEffect = { 
 	snap: function(magneticPoint, mousePoint, radius) {
 
-		var retrunedPoint = new Point(50, 50);
+		var point = mousePoint;
 
-		return retrunedPoint;
+		if (this.distance(magneticPoint, mousePoint) <= radius) {
+			point = magneticPoint;
+		} 
+		return point;
 	}, 
 	distance: function(point1, point2) {
 		return Math.sqrt(Math.pow(point1.x-point2.x, 2) + Math.pow(point1.y - point2.y, 2));

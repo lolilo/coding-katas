@@ -16,6 +16,16 @@ suite('magnetoEffect', function() {
   		assert.deepEqual(expectedResult, magnetoEffect.snap(magneticPoint, mousePoint, effectRadius));
   });
 
+  test('one magnetic point; mouse clicks outside of effectRadius', function() {
+  		var magneticPoint = new Point(50, 50);
+  		var mousePoint = new Point(0, 0);
+  		var effectRadius = 5;
+
+  		var expectedResult = new Point(0, 0);
+  		assert.deepEqual(expectedResult, magnetoEffect.snap(magneticPoint, mousePoint, effectRadius));
+
+  });
+
   test('distance', function(){
 		var point1 = new Point(0, 0);
   		var point2 = new Point(1, 1);

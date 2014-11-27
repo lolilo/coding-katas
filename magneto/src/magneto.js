@@ -1,5 +1,15 @@
 
 var magnetoEffect = {
+	getStartVectorPoint: function(magneticPointList, mousePoint, radius) {
+		var closestMagneticPoint = magneticPointList[0];
+		for(i = 0; i < magneticPointList.length; i++) {
+			var pointDistance = this.distance(magneticPointList[i], mousePoint);
+			if(this.distance(closestMagneticPoint, mousePoint) > pointDistance){
+				closestMagneticPoint = magneticPointList[i];
+			}
+		};
+		return closestMagneticPoint;
+	},
 	snap: function(magneticPoint, mousePoint, radius) {
 
 		var point = mousePoint;

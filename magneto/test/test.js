@@ -11,7 +11,6 @@ suite('magnetoEffect', function() {
   		var magneticPoint = new Point(50, 50);
   		var mousePoint = new Point(49, 50);
   		var effectRadius = 5;
-
   		var expectedResult = new Point(50, 50);
   		assert.deepEqual(expectedResult, magnetoEffect.snap(magneticPoint, mousePoint, effectRadius));
   });
@@ -20,7 +19,6 @@ suite('magnetoEffect', function() {
   		var magneticPoint = new Point(50, 50);
   		var mousePoint = new Point(0, 0);
   		var effectRadius = 5;
-
   		var expectedResult = new Point(0, 0);
   		assert.deepEqual(expectedResult, magnetoEffect.snap(magneticPoint, mousePoint, effectRadius));
 
@@ -29,7 +27,6 @@ suite('magnetoEffect', function() {
   test('distance', function(){
 		var point1 = new Point(0, 0);
   		var point2 = new Point(1, 1);
-
   		var result = magnetoEffect.distance(point1, point2);
   		assert.equal(Math.sqrt(2), result);
 
@@ -47,7 +44,7 @@ suite('magnetoEffect', function() {
 
   });  
 
-    test('find the closest magnetic point2', function(){
+  test('find the closest magnetic point2', function(){
   	var magneticPoint1 = new Point(50, 50);
   	var magneticPoint2 = new Point(51, 51);
   	var magneticPoint3 = new Point(49, 49);
@@ -60,9 +57,22 @@ suite('magnetoEffect', function() {
 
   });  
 
+  test('do not return a magnetic point if there is not within radius', function(){
+	var magneticPoint1 = new Point(50, 50);
+  	var magneticPoint2 = new Point(51, 51);
+  	var magneticPoint3 = new Point(49, 49);
+  	var magneticPointList = [magneticPoint1, magneticPoint2, magneticPoint3];
+  	var mousePoint = new Point(0, 0);
+  	var effectRadius = 5;
+
+  	assert.deepEqual(mousePoint, magnetoEffect.getStartVectorPoint(magneticPointList, mousePoint, effectRadius));
+
+
+  });
+
 });
 
-suite('Point Class', function () {
+suite('Point class', function () {
 	test('Point class has x and y attributes.', function(){
 		var point = new Point(10, 20);
 		assert.equal(point.x, 10);
@@ -73,3 +83,16 @@ suite('Point Class', function () {
 		assert.equal(point2.y, 30);
 	});
 })
+
+
+// suite('Canvas class', function () {
+// 	test('Canvas class interfaces', function(){
+// 		var canvas = new Canvas(magneticPointList);
+// 		canvas.radius = 5;
+
+// 		var result = canvas.snap(mousePoint);
+//   		var expectedResult = new Point(50, 50);
+
+// 		assert.deepEqual(expectedResult, result);
+// 	});
+// })

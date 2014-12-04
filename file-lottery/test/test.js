@@ -8,6 +8,7 @@ var fileLottery = require('../src/fileLottery.js').fileLottery;
 var returnElementFromInputIndex = require('../src/fileLottery.js').returnElementFromInputIndex;
 var randomNumberGenerator = require('../src/fileLottery.js').randomNumberGenerator;
 var getFileListFromDirectoryPath = require('../src/fileLottery.js').getFileListFromDirectoryPath;
+var elementExistsInList = require('../src/fileLottery.js').elementExistsInList;
 
 var DIRECTORY = ["file1", "file2"];
 
@@ -19,14 +20,18 @@ suite('fileLottery', function() {
 
   test('takes in a directory and returns a random file from inside that directory', function() {
 
-    var mockFileList = sinon.stub(getFileListFromDirectoryPath);
-    mockFileList.withArgs('src/testfiles').returns(DIRECTORY);
+    // var mockFileList = sinon.stub(getFileListFromDirectoryPath);
+    // mockFileList.withArgs('src/testfiles').returns(DIRECTORY);
 
-    var result = fileLottery('src/testfiles');
     
+    // var result = fileLottery('src/testfiles');
+    
+    // var filePath = path.join(__dirname, "../src");
+    // var result = fileLottery(filePath);
+
+
     var expectedResult = "file1";
     assert.equal(expectedResult, result);
-
   });
 });
 
@@ -68,4 +73,10 @@ suite('getFileListFromDirectoryPath', function() {
 
 });
 
+suite('elementExistsInList', function() {
+  test('return a boolean indicating whether the element exists in the list', function() {
+    assert.equal(true, elementExistsInList("yo", ["yo"]))
+  });
+
+});
 

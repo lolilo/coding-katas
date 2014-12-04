@@ -5,6 +5,7 @@
   "dependencies": {
     "blanket": "1.x.x",
     "mocha": "2.x.x",
+    "chai": "*",
     "sinon": "1.12.x"
   },
   "devDependencies": {

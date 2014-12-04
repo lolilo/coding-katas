@@ -3,35 +3,30 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var path = require('path');
+var chai = require('chai');
+var expect = chai.expect;
 
-var fileLottery = require('../src/fileLottery.js').fileLottery;
-var returnElementFromInputIndex = require('../src/fileLottery.js').returnElementFromInputIndex;
+// var returnElementFromInputIndex = require('../src/fileLottery.js').returnElementFromInputIndex;
 var randomNumberGenerator = require('../src/fileLottery.js').randomNumberGenerator;
-var getFileListFromDirectoryPath = require('../src/fileLottery.js').getFileListFromDirectoryPath;
 var elementExistsInList = require('../src/fileLottery.js').elementExistsInList;
+var FileLottery = require('../src/fileLottery.js').FileLottery;
 
-var DIRECTORY = ["file1", "file2"];
+
+var FILE_LIST = ["file1", "file2"];
+
+suite('FileLottery Object', function() {
+  var lottery = new FileLottery();
+})
 
 suite('fileLottery', function() {
-
-  var mockRandomNumber = sinon.stub();
-  mockRandomNumber.onFirstCall().returns(1);
-  mockRandomNumber.onSecondCall().returns(2);
-
   test('takes in a directory and returns a random file from inside that directory', function() {
 
-    // var mockFileList = sinon.stub(getFileListFromDirectoryPath);
-    // mockFileList.withArgs('src/testfiles').returns(DIRECTORY);
-
-    
-    // var result = fileLottery('src/testfiles');
-    
-    // var filePath = path.join(__dirname, "../src");
-    // var result = fileLottery(filePath);
-
-
-    var expectedResult = "file1";
-    assert.equal(expectedResult, result);
+    var lottery = new FileLottery();
+    var mockFileList = sinon.stub(lottery, 'getFileListFromDirectoryPath');
+    mockFileList.withArgs('src/testfiles').returns(FILE_LIST);
+        
+    var result = lottery.fileLottery('src/testfiles');
+    expect(result).to.be.a('string');
   });
 });
 
@@ -40,12 +35,14 @@ suite('returnElementFromInputIndex', function() {
   mockRandomNumber.onFirstCall().returns(0);
   mockRandomNumber.onSecondCall().returns(1);
 
+  var lottery = new FileLottery();
+
   test('return element from input index', function() {
-    var result = returnElementFromInputIndex(mockRandomNumber(), DIRECTORY);
+    var result = lottery.returnElementFromInputIndex(mockRandomNumber(), FILE_LIST);
     var expectedResult = "file1";
     assert.equal(expectedResult, result);
 
-    var result = returnElementFromInputIndex(mockRandomNumber(), DIRECTORY);
+    var result = lottery.returnElementFromInputIndex(mockRandomNumber(), FILE_LIST);
     var expectedResult = "file2";
     assert.equal(expectedResult, result);
   })
@@ -61,13 +58,13 @@ suite('randomNumberGenerator', function() {
 
 });
 
-
 suite('getFileListFromDirectoryPath', function() {
 
   test('return a list of strings of files within given directory path', function() {
  
     var filePath = path.join(__dirname, "../src");
-    assert.deepEqual(['fileLottery.js'], getFileListFromDirectoryPath(filePath));
+    var lottery = new FileLottery();
+    assert.deepEqual(['fileLottery.js'], lottery.getFileListFromDirectoryPath(filePath));
 
   });
 

@@ -1,12 +1,23 @@
 var fs = require('fs');
 
-var fileLottery = function( directoryPath ) {
-	var fileList = getFileListFromDirectoryPath( directoryPath );
-	var number = randomNumberGenerator(0, fileList.length);
-	return returnElementFromInputIndex(number,fileList);
+var FileLottery = function() {
+	// this.index = 0;
+	this.fileList = [];
+};
+
+// FileLottery.prototype = {
+// 	next: function() {
+// 		return this.fileList[fileList.index++];
+// 	}
+// }
+
+FileLottery.prototype.fileLottery = function( directoryPath ) {
+	this.fileList = this.getFileListFromDirectoryPath(directoryPath);
+	var number = randomNumberGenerator(0, this.fileList.length - 1);
+	return this.returnElementFromInputIndex(number, this.fileList);
 }
 
-var getFileListFromDirectoryPath = function( directoryPath ) {
+FileLottery.prototype.getFileListFromDirectoryPath = function( directoryPath ) {
 	var blacklist = [".DS_Store"]; // change this to a hash for better efficiency
 	var fileList = fs.readdirSync(directoryPath);
 	var finalFileList = [];
@@ -20,14 +31,17 @@ var getFileListFromDirectoryPath = function( directoryPath ) {
 	return finalFileList;
 }
 
-var elementExistsInList = function(element, list) {
-    for (var i = 0; i < list.length; i++){
-        if (element == list[i]){
-            return true;
-        }
-    }
-    return false;
+FileLottery.prototype.returnElementFromInputIndex = function(num, iterable) {
+	var it = new Iterator(iterable);
+	var currentElement;
+	for (var i = 0; i < it.items.length; i++) {
+		currentElement = it.next();
+		if ( i == num ) {
+			return currentElement;
+		}
+	}
 }
+
 	
 var Iterator = function(items) {
 	this.index = 0;
@@ -40,24 +54,21 @@ Iterator.prototype  = {
 	}
 }
 
-var returnElementFromInputIndex = function(num, iterable) {
-	var it = new Iterator(iterable);
-	var currentElement;
-	for (var i = 0; i<it.items.length; i++) {
-		currentElement = it.next();
-		if ( i == num ) {
-			return currentElement;
-		}
-	}
+var elementExistsInList = function(element, list) {
+    for (var i = 0; i < list.length; i++){
+        if (element == list[i]){
+            return true;
+        }
+    }
+    return false;
 }
 
-var randomNumberGenerator = function( min, max ) {
+var randomNumberGenerator = function(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-module.exports.fileLottery = fileLottery;
-module.exports.returnElementFromInputIndex = returnElementFromInputIndex;
+// module.exports.returnElementFromInputIndex = returnElementFromInputIndex;
 module.exports.randomNumberGenerator = randomNumberGenerator;
-module.exports.getFileListFromDirectoryPath = getFileListFromDirectoryPath;
 module.exports.elementExistsInList = elementExistsInList;
+module.exports.FileLottery = FileLottery;
 

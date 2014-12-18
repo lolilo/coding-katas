@@ -1,11 +1,15 @@
 var fs = require('fs');
 var pathModule = require('path');
 
+var TARGET_LOG_FILE = pathModule.join(__dirname, 'log.txt');
+
 var FileLottery = function(path) {
+	this.logger = new Logger(TARGET_LOG_FILE);
 	this.fileNames = this.init(path);
 	this.fileNames = FileLottery.shuffleArray(this.fileNames);
 	this.fileListLength = this.fileNames.length;
 	this.fileListIndex = -1;
+	this.logger.add("Found directory with " + this.fileListLength + " files.");
 };	
 
 FileLottery.prototype = {
@@ -17,21 +21,22 @@ FileLottery.prototype = {
 			fileName = pathModule.basename(path);
 			fileNames = [fileName];
 		} else {
-			console.log("Path does not lead to a file or directory.");
+			this.logger.add(path + " does not lead to a file or directory.");
 		}
 		return fileNames;
 	},
 
-	fileLottery: function() {
-    	if (this.fileListLength == 0) {
-    		return '';
-    	} 
-    	return this.nextFile(); 
+fileLottery: function() {
+	if (this.fileListLength == 0) {
+		return '';
+	} 
+	return this.nextFile(); 
 	},
 
 	nextFile: function() {
 		if (this.fileListIndex >= this.fileListLength - 1) {
 			this.fileNames = FileLottery.shuffleArray(this.fileNames);
+			this.logger.add("Randomized array.");
 			this.fileListIndex = -1; 
 		}
 		this.fileListIndex++;
@@ -67,13 +72,24 @@ FileLottery.getRandomNumber = function(min, max) {
 }
 
 FileLottery.shuffleArray = function(array) {
-		for (var i = array.length - 1; i > 0; i--) {
-			var randomNumber = FileLottery.getRandomNumber(0, i);
-		    var temp = array[i];
-		    array[i] = array[randomNumber];
-		    array[randomNumber] = temp;
-		}
-		return array;
-	},
+	for (var i = array.length - 1; i > 0; i--) {
+		var randomNumber = FileLottery.getRandomNumber(0, i);
+	    var temp = array[i];
+	    array[i] = array[randomNumber];
+	    array[randomNumber] = temp;
+	}
+	return array;
+}
+
+var Logger = function(targetLogFile) {
+	this.targetLogFile = targetLogFile;
+};
+
+Logger.prototype = {
+	add: function(logString) {
+		fs.appendFileSync(this.targetLogFile, logString + '\n');
+	} 
+}
 
 module.exports.FileLottery = FileLottery;
+module.exports.Logger = Logger;

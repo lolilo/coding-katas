@@ -6,6 +6,8 @@ var expect = chai.expect;
 var sinon = require('sinon');
 
 var FileLottery = require('../src/fileLottery.js').FileLottery;
+var Logger = require('../src/fileLottery.js').Logger;
+
 var TEST_DIRECTORY_PATH = __dirname + "/testFileDirectory";
 var TEST_DIRECTORY_FILES = [
     "1.txt",
@@ -151,5 +153,43 @@ suite('FileLottery.prototype.next', function() {
     expect(lottery.fileLottery()).to.equal('5.txt');
     stubGetContentsOfDirectory.restore();
     stubShuffleArray.restore();
+  });
+});
+
+suite('Logger.add', function() {
+  test('Add log input string to an existing .txt file.', function() {
+    var fs = require('fs');
+    var pathModule = require('path');
+    var TARGET_FILE_PATH = pathModule.join(__dirname, 'log.txt');
+
+    var TEST_STRING = 'some string';
+    var logger = new Logger(TARGET_FILE_PATH);
+    logger.add(TEST_STRING);
+
+    var fileContents = fs.readFileSync(TARGET_FILE_PATH, 'utf8');
+    var lines = fileContents.trim().split('\n');
+    var lastLine = lines[lines.length - 1];
+    expect(lastLine).to.equal(TEST_STRING);
+    fs.unlinkSync(TARGET_FILE_PATH);
+  });
+
+  test('TARGET_FILE_PATH does not yet exist; log input string to a new TARGET_FILE_PATH file.', function() {
+    var fs = require('fs');
+    var pathModule = require('path');
+    var TARGET_FILE_PATH = pathModule.join(__dirname, 'log.txt');
+
+    var TEST_STRING = 'some string';
+    var logger = new Logger(TARGET_FILE_PATH);
+    logger.add(TEST_STRING);
+
+    var fileContents = fs.readFileSync(TARGET_FILE_PATH, 'utf8');
+    expect(fileContents.trim()).to.equal(TEST_STRING);
+  });
+
+});
+
+suite('FileLottery logs.', function() {
+  test('Intializtion.', function() {
+
   });
 });

@@ -8,6 +8,9 @@ var sinon = require('sinon');
 var FileLottery = require('../src/fileLottery.js').FileLottery;
 var Logger = require('../src/fileLottery.js').Logger;
 
+var fs = require('fs');
+var pathModule = require('path');
+
 var TEST_DIRECTORY_PATH = __dirname + "/testFileDirectory";
 var TEST_DIRECTORY_FILES = [
     "1.txt",
@@ -16,6 +19,9 @@ var TEST_DIRECTORY_FILES = [
     "4.txt",
     "5.txt"
    ];
+
+var PRODUCTION_LOG_FILE = require('../src/fileLottery.js').LOG_FILE;
+var TEST_LOG_FILE = pathModule.join(__dirname, 'log.txt');
 
 suite('FileLottery.prototype.init', function() {
   test('Return list of file names for a path to a non-empty directory.', function() {
@@ -158,38 +164,70 @@ suite('FileLottery.prototype.next', function() {
 
 suite('Logger.add', function() {
   test('Add log input string to an existing .txt file.', function() {
-    var fs = require('fs');
-    var pathModule = require('path');
-    var TARGET_FILE_PATH = pathModule.join(__dirname, 'log.txt');
-
+    var fd = fs.openSync(TEST_LOG_FILE, 'wx');
+    fs.closeSync(fd);
+       
     var TEST_STRING = 'some string';
-    var logger = new Logger(TARGET_FILE_PATH);
+    var logger = new Logger(TEST_LOG_FILE);
     logger.add(TEST_STRING);
 
-    var fileContents = fs.readFileSync(TARGET_FILE_PATH, 'utf8');
+
+    var fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
     var lines = fileContents.trim().split('\n');
     var lastLine = lines[lines.length - 1];
     expect(lastLine).to.equal(TEST_STRING);
-    fs.unlinkSync(TARGET_FILE_PATH);
+    fs.unlinkSync(TEST_LOG_FILE);
   });
 
-  test('TARGET_FILE_PATH does not yet exist; log input string to a new TARGET_FILE_PATH file.', function() {
-    var fs = require('fs');
-    var pathModule = require('path');
-    var TARGET_FILE_PATH = pathModule.join(__dirname, 'log.txt');
-
+  test('TEST_LOG_FILE does not yet exist; log input string to a new TEST_LOG_FILE file.', function() {
     var TEST_STRING = 'some string';
-    var logger = new Logger(TARGET_FILE_PATH);
+    var logger = new Logger(TEST_LOG_FILE);
     logger.add(TEST_STRING);
 
-    var fileContents = fs.readFileSync(TARGET_FILE_PATH, 'utf8');
+    var fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
     expect(fileContents.trim()).to.equal(TEST_STRING);
   });
-
 });
 
 suite('FileLottery logs.', function() {
-  test('Intializtion.', function() {
+  test('Intializtion', function() {
+    var loggerSpy = sinon.spy(Logger.prototype, 'add');
+    var logger = new Logger(TEST_LOG_FILE); 
 
+    var stubGetContentsOfDirectory = sinon.stub(FileLottery, 'getContentsOfDirectory');
+    var stubShuffleArray = sinon.stub(FileLottery, 'shuffleArray');
+    stubGetContentsOfDirectory.withArgs(TEST_DIRECTORY_PATH).returns(TEST_DIRECTORY_FILES);
+    stubShuffleArray.withArgs(TEST_DIRECTORY_FILES).returns(TEST_DIRECTORY_FILES);
+
+    var lottery = new FileLottery(TEST_DIRECTORY_PATH); 
+    assert(loggerSpy.calledOnce);
+
+    stubGetContentsOfDirectory.restore();
+    stubShuffleArray.restore();
+    loggerSpy.restore();
+  });
+
+  test('all logs', function() {
+    var loggerSpy = sinon.spy(Logger.prototype, 'add');
+    var logger = new Logger(TEST_LOG_FILE); 
+
+    var stubGetContentsOfDirectory = sinon.stub(FileLottery, 'getContentsOfDirectory');
+    var stubShuffleArray = sinon.stub(FileLottery, 'shuffleArray');
+    stubGetContentsOfDirectory.withArgs(TEST_DIRECTORY_PATH).returns(TEST_DIRECTORY_FILES);
+    stubShuffleArray.withArgs(TEST_DIRECTORY_FILES).returns(TEST_DIRECTORY_FILES);
+
+    var lottery = new FileLottery(TEST_DIRECTORY_PATH); 
+    assert(loggerSpy.calledOnce);
+    lottery.nextFile();
+    assert(loggerSpy.calledTwice);
+
+    stubGetContentsOfDirectory.restore();
+    stubShuffleArray.restore();
+    loggerSpy.restore();
+  });
+
+  test('This is a placeholder to delete the generated log.txt files. #hoisting.', function() {
+    fs.unlinkSync(PRODUCTION_LOG_FILE);
+    fs.unlinkSync(TEST_LOG_FILE);
   });
 });

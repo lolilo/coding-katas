@@ -1,15 +1,20 @@
 var fs = require('fs');
 var pathModule = require('path');
 
-var TARGET_LOG_FILE = pathModule.join(__dirname, 'log.txt');
+var LOG_FILE = pathModule.join(__dirname, 'log.txt');
 
 var FileLottery = function(path) {
-	this.logger = new Logger(TARGET_LOG_FILE);
+	this.logger = new Logger(LOG_FILE);
 	this.fileNames = this.init(path);
 	this.fileNames = FileLottery.shuffleArray(this.fileNames);
 	this.fileListLength = this.fileNames.length;
 	this.fileListIndex = -1;
-	this.logger.add("Found directory with " + this.fileListLength + " files.");
+
+	if (this.fileListLength > 0) {
+		this.logger.add("Found directory with " + this.fileListLength + " files.");
+	} else {
+		this.logger.add("No files available.");
+	}
 };	
 
 FileLottery.prototype = {
@@ -17,6 +22,7 @@ FileLottery.prototype = {
 		var fileNames; 
 		if (fs.lstatSync(path).isDirectory()) {
 			fileNames = FileLottery.getContentsOfDirectory(path);
+
 		} else if (fs.lstatSync(path).isFile()) {
 			fileName = pathModule.basename(path);
 			fileNames = [fileName];
@@ -26,11 +32,11 @@ FileLottery.prototype = {
 		return fileNames;
 	},
 
-fileLottery: function() {
-	if (this.fileListLength == 0) {
-		return '';
-	} 
-	return this.nextFile(); 
+	fileLottery: function() {
+		if (this.fileListLength == 0) {
+			return '';
+		} 
+		return this.nextFile(); 
 	},
 
 	nextFile: function() {
@@ -40,6 +46,7 @@ fileLottery: function() {
 			this.fileListIndex = -1; 
 		}
 		this.fileListIndex++;
+		this.logger.add("Returned next random file: " + this.fileNames[this.fileListIndex]);
 		return this.fileNames[this.fileListIndex];
 	}
 };
@@ -81,15 +88,16 @@ FileLottery.shuffleArray = function(array) {
 	return array;
 }
 
-var Logger = function(targetLogFile) {
-	this.targetLogFile = targetLogFile;
+var Logger = function(targetLogFilePath) {
+	this.targetLogFilePath = targetLogFilePath;
 };
 
 Logger.prototype = {
 	add: function(logString) {
-		fs.appendFileSync(this.targetLogFile, logString + '\n');
+		fs.appendFileSync(this.targetLogFilePath, logString + '\n');
 	} 
 }
 
 module.exports.FileLottery = FileLottery;
 module.exports.Logger = Logger;
+module.exports.LOG_FILE = LOG_FILE;

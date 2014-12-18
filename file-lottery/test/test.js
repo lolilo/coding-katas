@@ -1,5 +1,3 @@
-'use strict';
-
 var assert = require('assert');
 var chai = require('chai');
 var expect = chai.expect;
@@ -162,72 +160,58 @@ suite('FileLottery.prototype.next', function() {
   });
 });
 
-suite('Logger.add', function() {
-  test('Add log input string to an existing .txt file.', function() {
+describe('Logger.add', function() {
+  beforeEach(function() {
+    TEST_STRING = 'some string';
+    logger = new Logger(TEST_LOG_FILE);
+  });
+
+  afterEach(function() {
+    fs.unlinkSync(TEST_LOG_FILE);
+  });
+
+  it('should add an input string to an existing .txt file', function() {
     var fd = fs.openSync(TEST_LOG_FILE, 'wx');
     fs.closeSync(fd);
-       
-    var TEST_STRING = 'some string';
-    var logger = new Logger(TEST_LOG_FILE);
     logger.add(TEST_STRING);
-
-
-    var fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
-    var lines = fileContents.trim().split('\n');
-    var lastLine = lines[lines.length - 1];
-    expect(lastLine).to.equal(TEST_STRING);
-    fs.unlinkSync(TEST_LOG_FILE);
-  });
-
-  test('TEST_LOG_FILE does not yet exist; log input string to a new TEST_LOG_FILE file.', function() {
-    var TEST_STRING = 'some string';
-    var logger = new Logger(TEST_LOG_FILE);
-    logger.add(TEST_STRING);
-
-    var fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
+    fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
     expect(fileContents.trim()).to.equal(TEST_STRING);
   });
+
+  it('should log input string to a new TEST_LOG_FILE file if TEST_LOG_FILE does not exist', function() {
+    logger.add(TEST_STRING);
+    fileContents = fs.readFileSync(TEST_LOG_FILE, 'utf8');
+    expect(fileContents.trim()).to.equal(TEST_STRING);
+  });
+
 });
 
-suite('FileLottery logs.', function() {
-  test('Intializtion', function() {
-    var loggerSpy = sinon.spy(Logger.prototype, 'add');
-    var logger = new Logger(TEST_LOG_FILE); 
+describe('FileLottery logs with setup and teardown.', function() {
+  beforeEach(function() {
+    loggerSpy = sinon.spy(Logger.prototype, 'add');
 
-    var stubGetContentsOfDirectory = sinon.stub(FileLottery, 'getContentsOfDirectory');
-    var stubShuffleArray = sinon.stub(FileLottery, 'shuffleArray');
+    stubGetContentsOfDirectory = sinon.stub(FileLottery, 'getContentsOfDirectory');
+    stubShuffleArray = sinon.stub(FileLottery, 'shuffleArray');
     stubGetContentsOfDirectory.withArgs(TEST_DIRECTORY_PATH).returns(TEST_DIRECTORY_FILES);
     stubShuffleArray.withArgs(TEST_DIRECTORY_FILES).returns(TEST_DIRECTORY_FILES);
+    lottery = new FileLottery(TEST_DIRECTORY_PATH); 
+  });
 
-    var lottery = new FileLottery(TEST_DIRECTORY_PATH); 
-    assert(loggerSpy.calledOnce);
-
+  afterEach(function() {
     stubGetContentsOfDirectory.restore();
     stubShuffleArray.restore();
     loggerSpy.restore();
+    fs.unlinkSync(PRODUCTION_LOG_FILE);
   });
 
-  test('all logs', function() {
-    var loggerSpy = sinon.spy(Logger.prototype, 'add');
-    var logger = new Logger(TEST_LOG_FILE); 
-
-    var stubGetContentsOfDirectory = sinon.stub(FileLottery, 'getContentsOfDirectory');
-    var stubShuffleArray = sinon.stub(FileLottery, 'shuffleArray');
-    stubGetContentsOfDirectory.withArgs(TEST_DIRECTORY_PATH).returns(TEST_DIRECTORY_FILES);
-    stubShuffleArray.withArgs(TEST_DIRECTORY_FILES).returns(TEST_DIRECTORY_FILES);
-
-    var lottery = new FileLottery(TEST_DIRECTORY_PATH); 
+  it('should log once upon initialization', function() {
     assert(loggerSpy.calledOnce);
+  });
+
+  it('should once more when returning a random file', function() {
     lottery.nextFile();
     assert(loggerSpy.calledTwice);
-
-    stubGetContentsOfDirectory.restore();
-    stubShuffleArray.restore();
-    loggerSpy.restore();
   });
 
-  test('This is a placeholder to delete the generated log.txt files. #hoisting.', function() {
-    fs.unlinkSync(PRODUCTION_LOG_FILE);
-    fs.unlinkSync(TEST_LOG_FILE);
-  });
 });
+
